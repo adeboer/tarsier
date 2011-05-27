@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 	time_t newest;
 
 	while (inopt) {
-		switch (getopt(argc, argv, "msdD:")) {
+		switch (getopt(argc, argv, "+msdD:")) {
 		case -1:
 			inopt = 0;
 			break;

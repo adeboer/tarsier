@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "archive_read_new() failed\n");
 		exit(1);
 	}
-	archive_read_support_compression_all(ark);
+	archive_read_support_filter_all(ark);
 	archive_read_support_format_all(ark);
 	if (archive_read_open_FILE(ark, fin)) {
 		fprintf(stderr, "Error opening archive: %s\n",
@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
 				archive_error_string(ark));
 		exit(1);
 	}
-	archive_read_finish(ark);
+	archive_read_free(ark);
 	if (mdtype) {
 		EVP_MD_CTX_cleanup(&mdctx);
 	}

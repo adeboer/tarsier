@@ -7,6 +7,7 @@
 #include <openssl/evp.h>
 #include <unistd.h>
 #include <time.h>
+#include <string.h>
 
 int main(int argc, char *argv[])
 {
@@ -19,15 +20,17 @@ int main(int argc, char *argv[])
 	const EVP_MD *mdtype = EVP_md5();
 	unsigned char md_value[EVP_MAX_MD_SIZE];
 	char *dateformat = NULL;
+	char *gitbranch = NULL;
 	int md_len, i;
 	int inopt = 1;
 	int noneyet = 1;
 	FILE *fin;
 	time_t oldest;
 	time_t newest;
+	time_t now = time(NULL);
 
 	while (inopt) {
-		switch (getopt(argc, argv, "+msH:dD:")) {
+		switch (getopt(argc, argv, "+msH:dD:g:")) {
 		case -1:
 			inopt = 0;
 			break;
@@ -52,6 +55,10 @@ int main(int argc, char *argv[])
 		case 'D':
 			dateformat = optarg;
 			mdtype = NULL;
+			break;
+		case 'g':
+			mdtype = NULL;
+			gitbranch = optarg;
 			break;
 		}
 	}
@@ -86,9 +93,17 @@ int main(int argc, char *argv[])
 		EVP_MD_CTX_init(&mdctx);
 	}
 
+	if (gitbranch) {
+		printf("feature done\n");
+		printf("commit refs/heads/%s\n", gitbranch);
+		printf("committer Tester <test@example.org> %ld +0000\n", now);
+		printf("data <<EOD\nArchive Import\nEOD\ndeleteall\n");
+	}
+
 	while ((ast = archive_read_next_header(ark, &entry)) == ARCHIVE_OK) {
 		ftype = archive_entry_filetype(entry);
 		time_t fage = archive_entry_mtime(entry);
+		int64_t size = archive_entry_size(entry);
 		if (noneyet || fage < oldest) {
 			oldest = fage;
 		}
@@ -103,18 +118,9 @@ int main(int argc, char *argv[])
 					fprintf(stderr, "EVP_DigestInit_ex failed\n");
 					exit(1);
 				}
-				while (rc = archive_read_data(ark, buff, sizeof(buff))) {
+				while ((rc = archive_read_data(ark, buff, sizeof(buff)))>0) {
 					if (EVP_DigestUpdate(&mdctx, buff, rc) == 0) {
 						fprintf(stderr, "EVP_DigestUpdate failed\n");
-						exit(1);
-					}
-				}
-				if (rc < 0) {
-					int iswarn = (rc == ARCHIVE_WARN);
-					fprintf(stderr, "%s reading archive: %s\n",
-							(iswarn ? "Warning" : "Error"),
-							archive_error_string(ark));
-					if (!iswarn) {
 						exit(1);
 					}
 				}
@@ -126,9 +132,33 @@ int main(int argc, char *argv[])
 					printf("%02x", md_value[i]);
 				}
 				space = "  ";
+			} else if (gitbranch) {
+				int gitperm = (archive_entry_perm(entry) & 0100) ? 0755 : 0644;
+				printf("M %o inline %s\ndata %ld\n", gitperm, archive_entry_pathname(entry), size);
+				while ((rc = archive_read_data(ark, buff, sizeof(buff)))>0) {
+					fwrite(buff, rc, 1, stdout);
+				}
+				putchar('\n');
 			} else {
 				archive_read_data_skip(ark);
+				rc = 0;
 			}
+			if (rc < 0) {
+				int iswarn = (rc == ARCHIVE_WARN);
+				fprintf(stderr, "%s reading archive: %s\n",
+						(iswarn ? "Warning" : "Error"),
+						archive_error_string(ark));
+				if (!iswarn) {
+					exit(1);
+				}
+			}
+		} else if (S_ISLNK(ftype) && gitbranch) {
+			printf("M 120000 inline %s\n", archive_entry_pathname(entry));
+			const char *sym = archive_entry_symlink(entry);
+			int len = strlen(sym);
+			printf("data %d\n", len);
+			fwrite(sym, len, 1, stdout);
+			putchar('\n');
 		}
 		if (*space) {
 			printf("%s%s\n", space, archive_entry_pathname(entry));
@@ -151,6 +181,9 @@ int main(int argc, char *argv[])
 			exit(1);
 		}
 		printf("%s\n", out);
+	}
+	if (gitbranch) {
+		printf("\ndone\n");
 	}
 	return 0;
 }

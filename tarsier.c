@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 	time_t newest;
 
 	while (inopt) {
-		switch (getopt(argc, argv, "+msdD:")) {
+		switch (getopt(argc, argv, "+msH:dD:")) {
 		case -1:
 			inopt = 0;
 			break;
@@ -36,6 +36,14 @@ int main(int argc, char *argv[])
 			break;
 		case 's':
 			mdtype = EVP_sha1();
+			break;
+		case 'H':
+			OpenSSL_add_all_digests();
+			mdtype = EVP_get_digestbyname(optarg);
+			if (mdtype == NULL) {
+				fprintf(stderr, "Unrecognized hash function name\n");
+				exit(2);
+			}
 			break;
 		case 'd':
 			dateformat = "%c";

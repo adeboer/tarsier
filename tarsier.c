@@ -24,6 +24,7 @@ int main(int argc, char *argv[])
 	int md_len, i;
 	int inopt = 1;
 	int noneyet = 1;
+	int mct = 0;
 	FILE *fin;
 	time_t oldest;
 	time_t newest;
@@ -36,9 +37,11 @@ int main(int argc, char *argv[])
 			break;
 		case 'm':
 			/* mdtype = EVP_md5(); */
+			mct++;
 			break;
 		case 's':
 			mdtype = EVP_sha1();
+			mct++;
 			break;
 		case 'H':
 			OpenSSL_add_all_digests();
@@ -47,20 +50,28 @@ int main(int argc, char *argv[])
 				fprintf(stderr, "Unrecognized hash function name\n");
 				exit(2);
 			}
+			mct++;
 			break;
 		case 'd':
 			dateformat = "%c";
 			mdtype = NULL;
+			mct++;
 			break;
 		case 'D':
 			dateformat = optarg;
 			mdtype = NULL;
+			mct++;
 			break;
 		case 'g':
 			mdtype = NULL;
 			gitbranch = optarg;
+			mct++;
 			break;
 		}
+	}
+	if (mct > 1) {
+		fprintf(stderr, "Only one mode may be selected at a time.\n");
+		exit(2);
 	}
 
 	if (argc == optind) {

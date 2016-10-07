@@ -1,0 +1,70 @@
+.TH tarsier 1 "Networking Commands"
+.SH NAME
+tarsier - tar file seer
+.SH SYNOPSIS
+.SY
+tarsier
+.OP \-msd
+.OP \-H HASH
+.OP \-D date_format
+.OP \-g branch
+archive_file
+.YS
+.SH DESCRIPTION
+This command processes an archive file (usually a compressed tar file) in
+various useful ways.
+It uses
+.I libarchive
+and can handle the range of archive and compression formats that can process.
+An archive can be named on the command line or will be taken from standard
+input.
+.PP
+The original use and default action is to output checksums of each file in
+the archive in the format of
+.IR md5sums (1)
+without needing to unpack or use any temporary storage,
+although newer checksum functions are now supported.  It can also find the
+timestamp of the newest file in an archive (useful to find out how old an
+archive "really" is after it's been copied around and had its timestamp
+bumped too many times).
+And it can be used to process an archive into the format used by
+.IR git-fast-import (1)
+and inject an archive directly into a repository, again without
+intermediate unpacking.
+.SH OPTIONS
+.TP
+.B -m
+Output MD5 checksums (default).
+.TP
+.B -s
+Output SHA1 checksums.
+.TP
+.B -H HASH
+Output checksums of the named format; all digest algorithms currently
+supported by the
+.I openssl
+library (SHA256, SHA512, etc) are supported.  This should allow
+for future hash function proliferation.
+.TP
+.B -d
+Output newest timestamp in the locale's usual human-readable format.
+.TP
+.B -D date_format
+Output newest timestamp using
+.IR strftime (3)
+giving it that format specifier.
+.TP
+.B -g branch
+Process files and symbolic links in the archive to standard output in
+the format expected by
+.IR git-fast-import (1).
+All files will arrive in a single commit which will become the branch
+head named (but note git will not like to overwrite an existing branch head).
+Note that git will generate a new pack file about the size of the source
+archive each time such an import is done and you may need to look at
+.IR git-gc (1)
+to clean up duplicates after awhile.
+.SH AUTHOR
+Anthony de Boer <adb@adb.ca>
+.PP
+{should go up on github.com/adeboer/ soon}

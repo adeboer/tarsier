@@ -1,0 +1,21 @@
+Source: tarsier
+Section: devel
+Priority: extra
+Maintainer: Anthony de Boer <adb@adb.ca>
+Build-Depends: libarchive-dev, libssl-dev
+Standards-Version: 3.9.4
+
+Package: tarsier
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Process an archive file in various useful ways.
+ .
+ The original use and default action is to output checksums of each file
+ in the archive in the format of md5sums without needing to unpack or use
+ any temporary storage, although newer checksum functions are now
+ supported.  It can also find the timestamp of the newest file in an
+ archive (useful to find out how old an archive "really" is after it's
+ been copied around and had its timestamp bumped too many times).  And it
+ can be used to process an archive into the format used by
+ git-fast-import and inject an archive directly into a repository, again
+ without intermediate unpacking.

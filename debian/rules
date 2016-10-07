@@ -1,0 +1,7 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@ 
+
+override_dh_auto_install:
+	install -D tarsier debian/tarsier/usr/bin/tarsier

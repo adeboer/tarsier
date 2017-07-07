@@ -29,9 +29,10 @@ int main(int argc, char *argv[])
 	time_t oldest;
 	time_t newest;
 	time_t now = time(NULL);
+	int pstrip = 0;
 
 	while (inopt) {
-		switch (getopt(argc, argv, "+msH:dD:g:")) {
+		switch (getopt(argc, argv, "+msH:dD:g:p:")) {
 		case -1:
 			inopt = 0;
 			break;
@@ -66,6 +67,9 @@ int main(int argc, char *argv[])
 			mdtype = NULL;
 			gitbranch = optarg;
 			mct++;
+			break;
+		case 'p':
+			pstrip = atoi(optarg);
 			break;
 		}
 	}
@@ -115,6 +119,14 @@ int main(int argc, char *argv[])
 		ftype = archive_entry_filetype(entry);
 		time_t fage = archive_entry_mtime(entry);
 		int64_t size = archive_entry_size(entry);
+		char const * path = archive_entry_pathname(entry);
+		int i;
+		for (i = pstrip; i > 0; i--) {
+			char *p = strchr(path, '/');
+			if (p) {
+				path = p + 1;
+			}
+		}
 		if (noneyet || fage < oldest) {
 			oldest = fage;
 		}
@@ -145,7 +157,7 @@ int main(int argc, char *argv[])
 				space = "  ";
 			} else if (gitbranch) {
 				int gitperm = (archive_entry_perm(entry) & 0100) ? 0755 : 0644;
-				printf("M %o inline %s\ndata %ld\n", gitperm, archive_entry_pathname(entry), size);
+				printf("M %o inline %s\ndata %ld\n", gitperm, path, size);
 				while ((rc = archive_read_data(ark, buff, sizeof(buff)))>0) {
 					fwrite(buff, rc, 1, stdout);
 				}
@@ -164,7 +176,7 @@ int main(int argc, char *argv[])
 				}
 			}
 		} else if (S_ISLNK(ftype) && gitbranch) {
-			printf("M 120000 inline %s\n", archive_entry_pathname(entry));
+			printf("M 120000 inline %s\n", path);
 			const char *sym = archive_entry_symlink(entry);
 			int len = strlen(sym);
 			printf("data %d\n", len);
@@ -172,7 +184,7 @@ int main(int argc, char *argv[])
 			putchar('\n');
 		}
 		if (*space) {
-			printf("%s%s\n", space, archive_entry_pathname(entry));
+			printf("%s%s\n", space, path);
 		}
 	}
 	if (ast != ARCHIVE_EOF) {

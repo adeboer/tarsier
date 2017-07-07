@@ -1,3 +1,9 @@
+tarsier (0.1) unstable; urgency=low
+
+  * Add -p option to strip path prefix
+
+ -- Anthony de Boer <adb@adb.ca>  Fri,  7 Jul 2017 00:25:42 -0400
+
 tarsier (0.0) unstable; urgency=low
 
   * initial

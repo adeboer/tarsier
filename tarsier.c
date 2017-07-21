@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 	FILE *fin;
 	time_t oldest;
 	time_t newest;
-	time_t now = time(NULL);
+	int64_t now = time(NULL);
 	int pstrip = 0;
 
 	while (inopt) {
@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
 	if (gitbranch) {
 		printf("feature done\n");
 		printf("commit refs/heads/%s\n", gitbranch);
-		printf("committer Tester <test@example.org> %ld +0000\n", now);
+		printf("committer Tester <test@example.org> %" PRId64 " +0000\n", now);
 		printf("data <<EOD\nArchive Import\nEOD\ndeleteall\n");
 	}
 

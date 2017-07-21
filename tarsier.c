@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
 			exit(1);
 		}
 	} else {
-		fprintf(stderr, "Usage: tarsier [-m|-s|-d|-D fmt] %d\n", argc);
+		fprintf(stderr, "Usage: tarsier [-m|-s|-d|-D fmt]\n");
 		exit(2);
 	}
 

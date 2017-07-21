@@ -1,3 +1,11 @@
+tarsier (0.2) unstable; urgency=low
+
+  * Improvements to Debianization
+  * Install tarsier man page
+  * Refinements to C source (no new features at this time)
+
+ -- Anthony de Boer <adb@adb.ca>  Fri, 21 Jul 2017 07:31:22 -0400
+
 tarsier (0.1) unstable; urgency=low
 
   * Add -p option to strip path prefix

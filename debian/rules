@@ -5,3 +5,5 @@
 
 override_dh_auto_install:
 	install -D tarsier debian/tarsier/usr/bin/tarsier
+	install -D tarsier.1 debian/tarsier/usr/share/man/man1/tarsier.1
+	gzip -9 debian/tarsier/usr/share/man/man1/tarsier.1

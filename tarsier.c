@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <string.h>
+#include <inttypes.h>
 
 int main(int argc, char *argv[])
 {
@@ -28,7 +29,7 @@ int main(int argc, char *argv[])
 	FILE *fin;
 	time_t oldest;
 	time_t newest;
-	time_t now = time(NULL);
+	int64_t now = time(NULL);
 	int pstrip = 0;
 
 	while (inopt) {
@@ -87,7 +88,7 @@ int main(int argc, char *argv[])
 			exit(1);
 		}
 	} else {
-		fprintf(stderr, "Usage: tarsier [-m|-s|-d|-D fmt] %d\n", argc);
+		fprintf(stderr, "Usage: tarsier [-m|-s|-d|-D fmt]\n");
 		exit(2);
 	}
 
@@ -111,7 +112,7 @@ int main(int argc, char *argv[])
 	if (gitbranch) {
 		printf("feature done\n");
 		printf("commit refs/heads/%s\n", gitbranch);
-		printf("committer Tester <test@example.org> %ld +0000\n", now);
+		printf("committer Tester <test@example.org> %" PRId64 " +0000\n", now);
 		printf("data <<EOD\nArchive Import\nEOD\ndeleteall\n");
 	}
 
@@ -157,7 +158,7 @@ int main(int argc, char *argv[])
 				space = "  ";
 			} else if (gitbranch) {
 				int gitperm = (archive_entry_perm(entry) & 0100) ? 0755 : 0644;
-				printf("M %o inline %s\ndata %ld\n", gitperm, path, size);
+				printf("M %o inline %s\ndata %" PRId64 "\n", gitperm, path, size);
 				while ((rc = archive_read_data(ark, buff, sizeof(buff)))>0) {
 					fwrite(buff, rc, 1, stdout);
 				}

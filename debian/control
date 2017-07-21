@@ -2,7 +2,10 @@ Source: tarsier
 Section: devel
 Priority: extra
 Maintainer: Anthony de Boer <adb@adb.ca>
-Build-Depends: libarchive-dev, libssl-dev
+Build-Depends: debhelper, libarchive-dev, libssl-dev
+Homepage: https://github.com/adeboer/tarsier
+Vcs-Browser: https://github.com/adeboer/tarsier
+Vcs-Git: git://github.com/adeboer/tarsier -b debian
 Standards-Version: 3.9.4
 
 Package: tarsier

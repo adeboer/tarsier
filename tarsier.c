@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <string.h>
+#include <inttypes.h>
 
 int main(int argc, char *argv[])
 {
@@ -157,7 +158,7 @@ int main(int argc, char *argv[])
 				space = "  ";
 			} else if (gitbranch) {
 				int gitperm = (archive_entry_perm(entry) & 0100) ? 0755 : 0644;
-				printf("M %o inline %s\ndata %ld\n", gitperm, path, size);
+				printf("M %o inline %s\ndata %" PRId64 "\n", gitperm, path, size);
 				while ((rc = archive_read_data(ark, buff, sizeof(buff)))>0) {
 					fwrite(buff, rc, 1, stdout);
 				}
